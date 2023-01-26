@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Student Enrollment Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    </head>
+  <style>
+      #enrollment-form {
+    width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
+
+#enrollment-form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#enrollment-form input[type="text"], #enrollment-form input[type="date"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+}
+
+#enrollment-form input[type="submit"] {
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}     
+  </style>
+  <body>
+    <form id="enrollment-form">
+      <label for="roll-no">Roll No.:</label>
+      <input type="text" id="roll-no" name="roll-no" onblur="getdetails(this.value)" required />
+      <br />
+      <label for="full-name">Full Name:</label>
+      <input type="text" id="full-name" name="full-name" required />
+      <br />
+      <label for="class">Class:</label>
+      <input type="text" id="class" name="class" required />
+      <br />
+      <label for="birth-date">Birth Date:</label>
+      <input type="date" id="birth-date" name="birth-date" required />
+      <br />
+      <label for="address">Address:</label>
+      <input type="text" id="address" name="address" required />
+      <br />
+      <label for="enrollment-date">Enrollment Date:</label>
+      <input type="date" id="enrollment-date" name="enrollment-date" required />
+      <br />
+      <button type="submit" class="btn btn-primary" id="save" onclick="saveData()">Enroll</button>
+      <button type="submit" class="btn btn-primary" id="update" onclick="updateForm()" disabled>Update</button>
+      <button type="submit" class="btn btn-primary" onclick="resetData()">Reset</button>
+    </form>
+    
+    <script>
+        var recordNo;
+        function updateForm(){
+          var loginForm = $('#enrollment-form').serializeArray();
+            var loginFormObject = {};
+            $.each(loginForm,
+                function(i, v) {
+                loginFormObject[v.name] = v.value;
+            });
+          var connToken = '90932309|-31949271095136181|90954036';
+          var jsonObj = JSON.stringify(loginFormObject);
+          console.log(jsonObj);
+          var reqString = "{\n"
+                    + "\"token\" : \""
+                    + connToken
+                    + "\","
+                    + "\"dbName\": \""
+                    + "SCHOOL-DB"
+                    + "\",\n" + "\"cmd\" : \"UPDATE\",\n"
+                    + "\"rel\" : \""
+                    + "SCHOOL-TABLE" + "\","
+                    + "\"jsonStr\": \n"+
+                    +"{\n \" "+ recordNo +" \": "
+                    + jsonObj
+                    + "}\n"
+                    + "}";
+            jQuery.ajaxSetup({async: false});
+            var url="http://api.login2explore.com:5577/api/iml";
+            $.post(url, reqString, function (result) {
+                    alert('Student ' + loginFormObject["full-name"] + ' enrolled !!!');
+                }).fail(function (result) {
+                    alert('Error!!!');
+                });
+            return jsonObj;
+      }
+      function saveData(){
+          var loginForm = $('#enrollment-form').serializeArray();
+            var loginFormObject = {};
+            $.each(loginForm,
+                function(i, v) {
+                loginFormObject[v.name] = v.value;
+            });
+          var connToken = '90932309|-31949271095136181|90954036';
+          var jsonObj = JSON.stringify(loginFormObject);
+          console.log(jsonObj);
+          var reqString = "{\n"
+                    + "\"token\" : \""
+                    + connToken
+                    + "\","
+                    + "\"dbName\": \""
+                    + "SCHOOL-DB"
+                    + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                    + "\"rel\" : \""
+                    + "SCHOOL-TABLE" + "\","
+                    + "\"jsonStr\": \n"
+                    + jsonObj
+                    + "\n"
+                    + "}";
+            jQuery.ajaxSetup({async: false});
+            var url="http://api.login2explore.com:5577/api/iml";
+            $.post(url, reqString, function (result) {
+                    alert('Student ' + loginFormObject["full-name"] + ' enrolled !!!');
+                    document.getElementById("enrollment-form").reset();
+                }).fail(function (result) {
+                    alert('Error!!!');
+                });
+            return jsonObj;
+      }
+      function resetData(){
+          document.getElementById("enrollment-form").reset();
+          $('#save').prop('disabled',false);
+          $('#update').prop('disabled',true);
+          $('#roll-no').prop('disabled',false);
+      }
+      $( "#enrollment-form" ).submit(function( event ) {
+        event.preventDefault();
+      });
+      function getdetails(roll_no){
+          var connToken = '90932309|-31949271095136181|90954036';
+          var details;
+          var reqString = "{\n"
+                    + "\"token\" : \""
+                    + connToken
+                    + "\","
+                    + "\"dbName\": \""
+                    + "SCHOOL-DB"
+                    + "\",\n" + "\"cmd\" : \"GET_BY_KEY\",\n"
+                    + "\"rel\" : \""
+                    + "SCHOOL-TABLE" + "\","
+                    + "\"jsonStr\": \n"
+                    + "{\"roll-no\": \""
+                    +roll_no+ "\""
+                       +"}"
+                    + "\n"
+                    + "}";
+            jQuery.ajaxSetup({async: false});
+            var url="http://api.login2explore.com:5577/api/irl";
+            $.post(url, reqString, function (result) {
+                if(JSON.parse(result)['data'] != ''){
+                    details = JSON.parse(JSON.parse(result)["data"]);
+                }
+                    
+                }).fail(function (result) {
+                    alert('Error!!!');
+                });
+             if( typeof(details) != 'undefined'){
+                 $('#roll-no').prop('disabled',true);
+                 $('#save').prop('disabled',true);
+                 $('#full-name').val(details['record']['full-name']);
+                 $('#class').val(details['record']['address']);
+                 $('#birth-date').val(details['record']['birth-date']);
+                 $('#address').val(details['record']['address']);
+                 $('#enrollment-date').val(details['record']['enrollment-date']);
+                 $('#update').prop('disabled',false);
+                 recordNo = details["rec_no"];
+             }
+      }
+      
+    </script>
+  </body>
+</html>
